@@ -3,6 +3,7 @@ from one.api import ONE
 from one.remote.aws import s3_download_file, get_s3_public
 import pandas as pd
 import sys
+import argparse
 
 if sys.version_info >= (3, 10):
     from one.alf.path import add_uuid_string
@@ -32,5 +33,15 @@ def download_data():
     session_trials = load_aggregate(subject, '_ibl_subjectSessions.table.pqt')
     print("Downloaded data for subject", subject)
 
+def get_file_size():
+    print("N/A")
+
 if __name__ == '__main__':
-    download_data()
+    parser = argparse.ArgumentParser(description="Download or get file size of the IBL behavior dataset.")
+    parser.add_argument('--dry-run', action='store_true', help='Print file size in MB and exit.')
+    args = parser.parse_args()
+
+    if args.dry_run:
+        get_file_size()
+    else:
+        download_data()

@@ -1,8 +1,25 @@
-import os, requests
+import os
+import requests
+import argparse
 
-def download_data():
+def get_file_size(url):
+    try:
+        with requests.get(url, stream=True, allow_redirects=True) as response:
+            response.raise_for_status()
+            size = int(response.headers.get('content-length', 0))
+            print(f"URL: {url}")
+            print(f"File size: {size / 1024 / 1024:.2f} MB")
+    except requests.exceptions.RequestException as e:
+        print(f"!!! Failed to get file size: {e} !!!")
+
+def download_data(dry_run=False):
     url = "https://github.com/steevelaquitaine/projInference/raw/gh-pages/data/csv/data01_direction4priors.csv"
     fname = "data01_direction4priors.csv"
+    
+    if dry_run:
+        get_file_size(url)
+        return
+
     if not os.path.isfile(fname):
         try:
             r = requests.get(url)
@@ -20,4 +37,7 @@ def download_data():
         print("Data already downloaded.")
 
 if __name__ == '__main__':
-    download_data()
+    parser = argparse.ArgumentParser(description='Download Laquitaine human errors data.')
+    parser.add_argument('--dry-run', action='store_true', help='Perform a dry run to get file size without downloading.')
+    args = parser.parse_args()
+    download_data(dry_run=args.dry_run)

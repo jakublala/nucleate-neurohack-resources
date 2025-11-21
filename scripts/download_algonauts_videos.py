@@ -1,4 +1,4 @@
-import os, requests, zipfile, io
+import os, requests, zipfile, io, argparse
 
 def download_data():
     dropbox_link = 'https://www.dropbox.com/s/agxyxntrbwko7t1/participants_data.zip?dl=1'
@@ -28,5 +28,25 @@ def download_data():
     else:
       print('You need to submit the form and get the dropbox link')
 
+def get_file_size():
+    urls = [
+        'https://www.dropbox.com/s/agxyxntrbwko7t1/participants_data.zip?dl=1',
+        'https://github.com/Neural-Dynamics-of-Visual-Cognition-FUB/Algonauts2021_devkit/raw/main/example.nii'
+    ]
+    total_size_in_mb = 0
+    for url in urls:
+        response = requests.head(url, allow_redirects=True)
+        size_in_bytes = int(response.headers.get('content-length', 0))
+        size_in_mb = size_in_bytes / (1024 * 1024)
+        total_size_in_mb += size_in_mb
+    print(f"{total_size_in_mb:.2f}")
+
 if __name__ == '__main__':
-    download_data()
+    parser = argparse.ArgumentParser(description="Download or get file size of the Algonauts videos dataset.")
+    parser.add_argument('--dry-run', action='store_true', help='Print file size in MB and exit.')
+    args = parser.parse_args()
+
+    if args.dry_run:
+        get_file_size()
+    else:
+        download_data()

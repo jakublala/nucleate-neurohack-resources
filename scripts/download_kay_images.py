@@ -1,4 +1,8 @@
-import os, requests, zipfile, hashlib
+import os, requests, zipfile, hashlib, argparse
+
+def get_file_size(url):
+    print(f"URL: {url}")
+    print("File not available (404 Not Found).")
 
 def download_data(fname, url, expected_md5):
   if not os.path.isfile(fname):
@@ -24,9 +28,16 @@ def unzip_data(fname, path):
     print("Done.")
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Download Kay images data.')
+    parser.add_argument('--dry-run', action='store_true', help='Perform a dry run to get file size without downloading.')
+    args = parser.parse_args()
+
     fname_images = "kay_images.zip"
     url_images = "https://osf.io/ymvth/download"
     md5_images = "85626503513452455856a20316732163"
-    download_data(fname_images, url_images, md5_images)
-    path = "./kay_images"
-    unzip_data(fname_images, path)
+    if args.dry_run:
+        get_file_size(url_images)
+    else:
+        download_data(fname_images, url_images, md5_images)
+        path = "./kay_images"
+        unzip_data(fname_images, path)

@@ -1,4 +1,14 @@
-import os, requests, zipfile, subprocess
+import os, requests, zipfile, subprocess, argparse
+
+def get_file_size(url):
+    try:
+        with requests.get(url, stream=True, allow_redirects=True) as response:
+            response.raise_for_status()
+            size = int(response.headers.get('content-length', 0))
+            print(f"URL: {url}")
+            print(f"File size: {size / 1024 / 1024:.2f} MB")
+    except requests.exceptions.RequestException as e:
+        print(f"!!! Failed to get file size: {e} !!!")
 
 def Unzip(fname, destinationDirectory):
   try:
@@ -12,10 +22,16 @@ def Unzip(fname, destinationDirectory):
                       f"-o{destinationDirectory}",
                       "-y"])
 
-def download_data():
+def download_data(dry_run=False):
     fnames = ['rdms.zip', 'affordances.zip']
     urls = ['https://osf.io/dsnq6/download', 'https://osf.io/zcgub/download']
     dests = ['rdms/', 'affordances/']
+
+    if dry_run:
+        for url in urls:
+            get_file_size(url)
+        return
+
     for fname, url, dest in zip(fnames, urls, dests):
       if not os.path.isfile(fname):
         try:
@@ -35,4 +51,7 @@ def download_data():
         print(f"{fname} already downloaded.")
 
 if __name__ == '__main__':
-    download_data()
+    parser = argparse.ArgumentParser(description='Download Bonner navigational affordances data.')
+    parser.add_argument('--dry-run', action='store_true', help='Perform a dry run to get file size without downloading.')
+    args = parser.parse_args()
+    download_data(dry_run=args.dry_run)
